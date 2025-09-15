@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visit Schedule</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f3f6;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      color: #007bff;
+    }
+    .form-box {
+      background: #fff;
+      padding: 20px;
+      margin: 20px auto;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btn-blue { background: #007bff; }
+    .btn-green { background: #28a745; }
+    .btn-red { background: #dc3545; }
+    .btn-orange { background: #fd7e14; }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📅 Visit Schedule</h2>
+
+  <div class="form-box">
+    <label>Client Name</label>
+    <input type="text" id="clientName">
+    
+    <label>Visit Date</label>
+    <input type="date" id="visitDate">
+    
+    <label>Visit Time</label>
+    <input type="time" id="visitTime">
+    
+    <label>Notes</label>
+    <textarea id="notes"></textarea>
+    
+    <button class="btn-blue" onclick="addVisit()" id="saveBtn">Add Visit</button>
+    <button class="btn-green" onclick="downloadJSON()">Download JSON</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="visitTable"></tbody>
+  </table>
+
+  <script>
+    let visits = [];
+    let editIndex = -1;
+
+    // Load saved visits from localStorage
+    window.onload = function() {
+      const saved = localStorage.getItem("visits");
+      if (saved) {
+        visits = JSON.parse(saved);
+        renderTable();
+      }
+    };
+
+    function addVisit() {
+      const name = document.getElementById("clientName").value;
+      const date = document.getElementById("visitDate").value;
+      const time = document.getElementById("visitTime").value;
+      const notes = document.getElementById("notes").value;
+
+      if (!name || !date || !time) {
+        alert("Please fill Client, Date, and Time.");
+        return;
+      }
+
+      if (editIndex === -1) {
+        visits.push({ name, date, time, notes });
+      } else {
+        visits[editIndex] = { name, date, time, notes };
+        editIndex = -1;
+        document.getElementById("saveBtn").textContent = "Add Visit";
+      }
+
+      localStorage.setItem("visits", JSON.stringify(visits));
+      renderTable();
+      clearForm();
+    }
+
+    function renderTable() {
+      const table = document.getElementById("visitTable");
+      table.innerHTML = "";
+      visits.forEach((v, index) => {
+        table.innerHTML += `
+          <tr>
+            <td>${v.name}</td>
+            <td>${v.date}</td>
+            <td>${v.time}</td>
+            <td>${v.notes}</td>
+            <td>
+              <button class="btn-orange" onclick="editVisit(${index})">Edit</button>
+              <button class="btn-red" onclick="deleteVisit(${index})">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function editVisit(index) {
+      const visit = visits[index];
+      document.getElementById("clientName").value = visit.name;
+      document.getElementById("visitDate").value = visit.date;
+      document.getElementById("visitTime").value = visit.time;
+      document.getElementById("notes").value = visit.notes;
+      editIndex = index;
+      document.getElementById("saveBtn").textContent = "Update Visit";
+    }
+
+    function deleteVisit(index) {
+      if (confirm("Are you sure you want to delete this visit?")) {
+        visits.splice(index, 1);
+        localStorage.setItem("visits", JSON.stringify(visits));
+        renderTable();
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("clientName").value = "";
+      document.getElementById("visitDate").value = "";
+      document.getElementById("visitTime").value = "";
+      document.getElementById("notes").value = "";
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(visits, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "visits.json");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Form with e-Signature</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 {
+      color: #007bff;
+    }
+    .form-box {
+      background: #fff;
+      width: 420px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    canvas {
+      width: 100%;
+      height: 120px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #fff;
+    }
+    .btn-blue { background: #007bff; }
+    .btn-green { background: #28a745; }
+    .btn-red { background: #dc3545; }
+    .btn-orange { background: #fd7e14; }
+    .btn-yellow { background: #ffc107; color: #000; }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    img {
+      max-height: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📝 Data Form with e-Signature</h2>
+
+  <div class="form-box">
+    <label>Name</label>
+    <input type="text" id="userName">
+
+    <label>Date</label>
+    <input type="date" id="date">
+
+    <label>Notes</label>
+    <textarea id="notes"></textarea>
+
+    <label>Signature</label>
+    <canvas id="signaturePad"></canvas>
+    <button class="btn-yellow" onclick="clearSignature()">Clear Signature</button><br>
+
+    <button class="btn-blue" onclick="addRecord()" id="saveBtn">Submit</button>
+    <button class="btn-green" onclick="downloadJSON()">Download JSON</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Notes</th>
+        <th>Signature</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="dataTable"></tbody>
+  </table>
+
+  <script>
+    let records = [];
+    let editIndex = -1;
+
+    const canvas = document.getElementById("signaturePad");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    }
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.onload = function() {
+      const saved = localStorage.getItem("records");
+      if (saved) {
+        records = JSON.parse(saved);
+        renderTable();
+      }
+    };
+
+    function addRecord() {
+      const name = document.getElementById("userName").value;
+      const date = document.getElementById("date").value;
+      const notes = document.getElementById("notes").value;
+      const signature = canvas.toDataURL();
+
+      if (!name || !date || !notes) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      if (editIndex === -1) {
+        records.push({ name, date, notes, signature });
+      } else {
+        records[editIndex] = { name, date, notes, signature };
+        editIndex = -1;
+        document.getElementById("saveBtn").textContent = "Submit";
+      }
+
+      localStorage.setItem("records", JSON.stringify(records));
+      renderTable();
+      clearForm();
+      clearSignature();
+    }
+
+    function renderTable() {
+      const table = document.getElementById("dataTable");
+      table.innerHTML = "";
+      records.forEach((rec, index) => {
+        table.innerHTML += `
+          <tr>
+            <td>${rec.name}</td>
+            <td>${rec.date}</td>
+            <td>${rec.notes}</td>
+            <td><img src="${rec.signature}" alt="Signature"></td>
+            <td>
+              <button class="btn-orange" onclick="editRecord(${index})">Edit</button>
+              <button class="btn-red" onclick="deleteRecord(${index})">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function editRecord(index) {
+      const rec = records[index];
+      document.getElementById("userName").value = rec.name;
+      document.getElementById("date").value = rec.date;
+      document.getElementById("notes").value = rec.notes;
+
+      editIndex = index;
+      document.getElementById("saveBtn").textContent = "Update";
+    }
+
+    function deleteRecord(index) {
+      if (confirm("Are you sure you want to delete this record?")) {
+        records.splice(index, 1);
+        localStorage.setItem("records", JSON.stringify(records));
+        renderTable();
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("userName").value = "";
+      document.getElementById("date").value = "";
+      document.getElementById("notes").value = "";
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(records, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "signature_data.json");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+
+</body>
+</html>

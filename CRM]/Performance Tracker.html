@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performance Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f3f6;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      color: #007bff;
+    }
+    .form-box {
+      background: #fff;
+      padding: 20px;
+      margin: 20px auto;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btn-blue { background: #007bff; }
+    .btn-green { background: #28a745; }
+    .btn-red { background: #dc3545; }
+    .btn-orange { background: #fd7e14; }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📊 Performance Tracker</h2>
+
+  <div class="form-box">
+    <label>Employee Name</label>
+    <input type="text" id="employeeName">
+
+    <label>Target Performance</label>
+    <input type="number" id="target">
+
+    <label>Actual Performance</label>
+    <input type="number" id="actual">
+
+    <button class="btn-blue" onclick="addRecord()" id="saveBtn">Add Record</button>
+    <button class="btn-green" onclick="downloadJSON()">Download JSON</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>Target</th>
+        <th>Actual</th>
+        <th>Difference</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="performanceTable"></tbody>
+  </table>
+
+  <script>
+    let records = [];
+    let editIndex = -1;
+
+    // Load saved records from localStorage
+    window.onload = function() {
+      const saved = localStorage.getItem("performanceRecords");
+      if (saved) {
+        records = JSON.parse(saved);
+        renderTable();
+      }
+    };
+
+    function addRecord() {
+      const employee = document.getElementById("employeeName").value;
+      const target = parseFloat(document.getElementById("target").value);
+      const actual = parseFloat(document.getElementById("actual").value);
+
+      if (!employee || isNaN(target) || isNaN(actual)) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const difference = actual - target;
+
+      if (editIndex === -1) {
+        records.push({ employee, target, actual, difference });
+      } else {
+        records[editIndex] = { employee, target, actual, difference };
+        editIndex = -1;
+        document.getElementById("saveBtn").textContent = "Add Record";
+      }
+
+      localStorage.setItem("performanceRecords", JSON.stringify(records));
+      renderTable();
+      clearForm();
+    }
+
+    function renderTable() {
+      const table = document.getElementById("performanceTable");
+      table.innerHTML = "";
+      records.forEach((r, index) => {
+        table.innerHTML += `
+          <tr>
+            <td>${r.employee}</td>
+            <td>${r.target}</td>
+            <td>${r.actual}</td>
+            <td>${r.difference}</td>
+            <td>
+              <button class="btn-orange" onclick="editRecord(${index})">Edit</button>
+              <button class="btn-red" onclick="deleteRecord(${index})">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function editRecord(index) {
+      const r = records[index];
+      document.getElementById("employeeName").value = r.employee;
+      document.getElementById("target").value = r.target;
+      document.getElementById("actual").value = r.actual;
+      editIndex = index;
+      document.getElementById("saveBtn").textContent = "Update Record";
+    }
+
+    function deleteRecord(index) {
+      if (confirm("Are you sure you want to delete this record?")) {
+        records.splice(index, 1);
+        localStorage.setItem("performanceRecords", JSON.stringify(records));
+        renderTable();
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("employeeName").value = "";
+      document.getElementById("target").value = "";
+      document.getElementById("actual").value = "";
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(records, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "performance.json");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+
+</body>
+</html>

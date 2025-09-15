@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sales Rep Navbar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+   
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+ 
+    .navbar {
+      background-color: #0d6efd;
+      overflow: hidden;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .navbar a {
+      color: white;
+      padding: 12px 20px;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.3s;
+    }
+  
+    .navbar a:hover {
+      background-color: #084298;
+    }
+     
+    .navbar a i {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .navbar a {
+        flex: 1 0 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <a href="CRM.html"><i class="fas fa-user-tie"></i>CRM</a>
+    <a href="Visit Schedule.html"><i class="fas fa-calendar-alt"></i>Visit Schedule</a>
+    <a href="Create Orders.html"><i class="fas fa-file-invoice"></i>Create Orders</a>
+    <a href="Performance Tracker.html"><i class="fas fa-chart-line"></i>Performance</a>
+    <a href="Product List.html"><i class="fas fa-box-open"></i>Product List</a>
+    <a href="Mobile Access.html"><i class="fas fa-mobile-alt"></i>Mobile Access</a>
+    <a href="Daily Reports.html"><i class="fas fa-sticky-note"></i>Daily Reports</a>
+    <a href="e-Signature Form.html"><i class="fas fa-pen-nib"></i>e-Signature</a>
+
+
+    
+    <a href="page_login.html"><i class="fas fa-pen-nib"></i>Log out</a>
+  </div>
+
+</body>
+</html>

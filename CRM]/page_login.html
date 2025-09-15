@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    /* خلفية الصفحة */
+    body {
+      font-family: Arial, sans-serif;
+      background: url("S_LE_upscale_balanced_x4.jpg") no-repeat center center fixed;
+      background-size: cover; /* يضمن أن الصورة تغطي الشاشة بالكامل */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    label {
+      display: block;
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #444;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+     <img src="1711978956245.jpg" alt="Logo" class="logo">
+    <h2>Login</h2>
+    <!-- Label in center with font size 15px -->
+    <label for="username">Srp</label>
+    
+    <input type="text" id="username" placeholder="Enter Username" required>
+    <input type="password" id="password" placeholder="Enter Password" required>
+    <button onclick="login()">Login</button>
+    <p class="error" id="errorMsg">Invalid username or password!</p>
+  </div>
+
+  <script>
+    // Define users
+    const admin = { username: "admin", password: "admin123" };
+
+    const users = [
+      { username: "user1", password: "1234" },
+      { username: "user2", password: "1234" },
+      { username: "user3", password: "1234" },
+      { username: "user4", password: "1234" },
+      { username: "user5", password: "1234" },
+      { username: "user6", password: "1234" },
+      { username: "user7", password: "1234" },
+      { username: "user8", password: "1234" },
+      { username: "user9", password: "1234" },
+      { username: "user10", password: "1234" }
+    ];
+
+    function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      // Check admin
+      if (username === admin.username && password === admin.password) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Check users
+      const validUser = users.find(
+        user => user.username === username && user.password === password
+      );
+
+      if (validUser) {
+         window.location.href = "CRM.html"; // ✅ Users go to CRM.html
+      } else {
+        document.getElementById("errorMsg").style.display = "block";
+      }
+    }
+  </script>
+
+</body>
+</html>

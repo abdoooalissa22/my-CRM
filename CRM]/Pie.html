@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales & Swatch Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;  ** 
+      margin: 20px;
+      background: #747c88;
+      color: #333;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #007bff;
+      color: #fff;
+    }
+    canvas {
+      background: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .alert {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid red;
+      background: #ffe5e5;
+      color: #900;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Sales & Swatch Analysis Dashboard</h1>
+
+  <div class="container">
+    <!-- Table -->
+    <div>
+      <h2>Sales Office</h2>
+      <table id="salesTable">
+        <thead>
+          <tr>
+            <th>Sales Office</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be injected -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>Total</th>
+            <th id="totalCount">0</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Chart -->
+    <div>
+      <h2>Sales Office by Count</h2>
+      <canvas id="salesChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="alert" id="dataAlert">
+    ⚠️ Data has changed! Dashboard updated.
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Initial data
+    let salesData = {
+      Export: 118,
+      JNR: 68,
+      "Local Market": 25,
+      USA: 19,
+      Italy: 16,
+      Germany: 14,
+      Holland: 6,
+      Spain: 1
+    };
+
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    let chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(salesData),
+        datasets: [{
+          label: 'Sales Count',
+          data: Object.values(salesData),
+          backgroundColor: '#007bff'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // Populate Table
+    function updateTable() {
+      const tbody = document.querySelector('#salesTable tbody');
+      tbody.innerHTML = "";
+      let total = 0;
+      for (let office in salesData) {
+        let row = `<tr><td>${office}</td><td>${salesData[office]}</td></tr>`;
+        tbody.innerHTML += row;
+        total += salesData[office];
+      }
+      document.getElementById("totalCount").textContent = total;
+    }
+    updateTable();
+
+    // Condition: trigger when data changes
+    function updateData(newData) {
+      salesData = newData;
+      // Update chart
+      chart.data.labels = Object.keys(salesData);
+      chart.data.datasets[0].data = Object.values(salesData);
+      chart.update();
+      // Update table
+      updateTable();
+      // Show alert
+      document.getElementById("dataAlert").style.display = "block";
+      setTimeout(() => {
+        document.getElementById("dataAlert").style.display = "none";
+      }, 3000);
+    }
+
+    // Example: simulate data change after 5 seconds
+    setTimeout(() => {
+      updateData({
+        Export: 120,
+        JNR: 70,
+        "Local Market": 30,
+        USA: 25,
+        Italy: 18,
+        Germany: 14,
+        Holland: 7,
+        Spain: 2
+      });
+    }, 5000);
+  </script>
+</body>
+</html>
